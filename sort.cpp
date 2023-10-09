@@ -24,8 +24,42 @@ void printArr(int* a, int size) {
     std::cout << a[size - 1] << " ]\n";
 }
 
+void merge(int* array, int start, int end) {
+    int left = start;
+    int right = (start + end) / 2;
+
+    int temp[end - start];
+    size_t i = 0;
+
+    while (left != (start + end) / 2 && right != end) {
+        if (array[left] <= array[right]) {
+            temp[i++] = array[left++];
+        } else {
+            temp[i++] = array[right++];
+        }
+    }
+
+    if (right == end) {
+        while (i != end) {
+            temp[i++] = array[left++];
+        }
+    } else {
+        while (i != end) {
+            temp[i++] = array[right++];
+        }
+    }
+
+    for (size_t i = 0; i < end; ++i) {
+        array[i] = temp[i];
+    }
+}
+
 int main() {
     int a[8] = {4, 3, 2, 1, 4, 3, 2, 1};
-    insertion_sort(a, 4, 9);
+    insertion_sort(a, 0, 4);
+    printArr(a, 8);
+    insertion_sort(a, 4, 8);
+    printArr(a, 8);
+    merge(a, 0, 8);
     printArr(a, 8);
 }
