@@ -14,6 +14,7 @@ void* incrementer(void* args) {
 int main() {
     pthread_t threads[100];
     pthread_mutex_init(&mutex, NULL);
+
     for (size_t i = 0; i < 50; ++i) {
         pthread_create(&threads[i], NULL, incrementer, NULL);
     }
