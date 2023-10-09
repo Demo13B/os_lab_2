@@ -16,7 +16,7 @@ void insertion_sort(int* array, int start, int end) {
     }
 }
 
-void printArr(int* a, int size) {
+void printArr(int* a, size_t size) {
     std::cout << "[ ";
     for (size_t i = 0; i != size - 1; ++i) {
         std::cout << a[i] << ", ";
@@ -54,11 +54,17 @@ void merge(int* array, int start_l, int start_r, int end) {
     }
 }
 
+void TimSort(int* array, size_t size) {
+    size_t run = 4;
+
+    for (size_t i = 0; i < size; i += run) {
+        insertion_sort(array, i, std::min(i + run, size));
+    }
+}
+
 int main() {
-    int a[8] = {4, 3, 2, 1, 4, 3};
-    insertion_sort(a, 0, 4);
-    printArr(a, 6);
-    insertion_sort(a, 4, 6);
+    int a[6] = {4, 3, 2, 1, 4, 3};
+    TimSort(a, 6);
     printArr(a, 6);
     merge(a, 0, 4, 6);
     printArr(a, 6);
