@@ -54,12 +54,12 @@ void TimSort(int* array, size_t size) {
     }
 
     for (size_t mergeSize = run; mergeSize < size; mergeSize *= 2) {
-        for (size_t left = 0; left < size; left += 2 * mergeSize) {
-            int mid = left + mergeSize;
-            int right = std::min(left + 2 * mergeSize, size);
+        for (size_t start_l = 0; start_l < size; start_l += 2 * mergeSize) {
+            int start_r = start_l + mergeSize;
+            int end = std::min(start_l + 2 * mergeSize, size);
 
-            if (right > mid) {
-                merge(array, left, mid, right);
+            if (end > start_r) {
+                merge(array, start_l, start_r, end);
             }
         }
     }
