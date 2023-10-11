@@ -1,6 +1,15 @@
 #include <iostream>
 
-void insertion_sort(int* array, int start, int end) {
+struct args {
+    int* array;
+    int start;
+    int end;
+};
+
+void* insertion_sort(void* input) {
+    int* array = ((struct args*)input)->array;
+    int start = ((struct args*)input)->start;
+    int end = ((struct args*)input)->end;
     int current, temp, pos;
 
     for (size_t i = start + 1; i < end; ++i) {
@@ -50,7 +59,12 @@ void TimSort(int* array, size_t size) {
     size_t run = 4;
 
     for (size_t i = 0; i < size; i += run) {
-        insertion_sort(array, i, std::min(i + run, size));
+        struct args* data = (struct args*)malloc(sizeof(struct args));
+        data->array = array;
+        data->start = i;
+        data->end = std::min(i + run, size);
+        insertion_sort(data);
+        free(data);
     }
 
     for (size_t mergeSize = run; mergeSize < size; mergeSize *= 2) {
