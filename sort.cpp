@@ -1,6 +1,23 @@
+#include <pthread.h>
 #include <iostream>
 
-void insertion_sort(int* array, int start, int end) {
+typedef struct args_ins {
+    int* array;
+    int start;
+    int end;
+} args_ins_t;
+
+typedef struct args_merge {
+    int* array;
+    int start_l;
+    int start_r;
+    int end;
+} args_merge_t;
+
+void* insertion_sort(void* input) {
+    int* array = ((args_ins_t*)input)->array;
+    int start = ((args_ins_t*)input)->start;
+    int end = ((args_ins_t*)input)->end;
     int current, temp, pos;
 
     for (size_t i = start + 1; i < end; ++i) {
@@ -14,9 +31,15 @@ void insertion_sort(int* array, int start, int end) {
             --pos;
         }
     }
+    pthread_exit(0);
 }
 
-void merge(int* array, int start_l, int start_r, int end) {
+void* merge(void* input) {
+    int* array = ((args_merge_t*)input)->array;
+    int start_l = ((args_merge_t*)input)->start_l;
+    int start_r = ((args_merge_t*)input)->start_r;
+    int end = ((args_merge_t*)input)->end;
+
     int left = start_l;
     int right = start_r;
 
@@ -32,34 +55,69 @@ void merge(int* array, int start_l, int start_r, int end) {
     }
 
     if (right == end) {
-        while (i != end) {
+        while (i != end - start_l) {
             temp[i++] = array[left++];
         }
     } else {
-        while (i != end) {
+        while (i != end - start_l) {
             temp[i++] = array[right++];
         }
     }
 
-    for (size_t i = 0; i < end; ++i) {
-        array[i] = temp[i];
+    for (size_t i = start_l; i < end; ++i) {
+        array[i] = temp[i - start_l];
     }
 }
 
-void TimSort(int* array, size_t size) {
+void TimSort(int* array, size_t size, int threads) {
     size_t run = 4;
+    pthread_t tid[threads];
 
     for (size_t i = 0; i < size; i += run) {
-        insertion_sort(array, i, std::min(i + run, size));
+        int created = 0;
+        while (created != threads && i < size) {
+            args_ins_t* data = (args_ins_t*)malloc(sizeof(args_ins_t));
+
+            data->array = array;
+            data->start = i;
+            data->end = std::min(i + run, size);
+
+            pthread_create(&tid[created], NULL, insertion_sort, data);
+            ++created;
+            i += run;
+        }
+        i -= run;
+
+        for (size_t i = 0; i < threads; ++i) {
+            pthread_join(tid[i], NULL);
+        }
     }
 
     for (size_t mergeSize = run; mergeSize < size; mergeSize *= 2) {
         for (size_t start_l = 0; start_l < size; start_l += 2 * mergeSize) {
-            int start_r = start_l + mergeSize;
-            int end = std::min(start_l + 2 * mergeSize, size);
+            int created = 0;
 
-            if (end > start_r) {
-                merge(array, start_l, start_r, end);
+            while (created != threads && start_l < size) {
+                int start_r = start_l + mergeSize;
+                int end = std::min(start_l + 2 * mergeSize, size);
+
+                if (end > start_r) {
+                    args_merge_t* data = (args_merge_t*)malloc(sizeof(args_merge_t));
+
+                    data->array = array;
+                    data->start_l = start_l;
+                    data->start_r = start_r;
+                    data->end = end;
+
+                    pthread_create(&tid[created], NULL, merge, data);
+                }
+                created++;
+                start_l += 2 * mergeSize;
+            }
+            start_l -= 2 * mergeSize;
+
+            for (size_t i = 0; i < threads; ++i) {
+                pthread_join(tid[i], NULL);
             }
         }
     }
@@ -73,8 +131,15 @@ void printArr(int* a, size_t size) {
     std::cout << a[size - 1] << " ]\n";
 }
 
-int main() {
-    int a[10] = {4, 3, 2, 1, 4, 3, 2, 1, 1, 1};
-    TimSort(a, 10);
-    printArr(a, 10);
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        std::cerr << "Something is wrong with the arguments\n";
+        return 1;
+    }
+
+    int threads = atoi(argv[1]);
+
+    int a[16] = {4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1};
+    TimSort(a, 16, threads);
+    printArr(a, 16);
 }
