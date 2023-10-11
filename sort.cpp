@@ -57,22 +57,28 @@ void merge(int* array, int start_l, int start_r, int end) {
     }
 }
 
-void TimSort(int* array, size_t size) {
+void TimSort(int* array, size_t size, int threads) {
     size_t run = 4;
-    pthread_t tid[4];
+    pthread_t tid[threads];
 
     for (size_t i = 0; i < size; i += run) {
-        args_t* data = (args_t*)malloc(sizeof(args_t));
+        int created = 0;
+        while (created != threads && i < size) {
+            args_t* data = (args_t*)malloc(sizeof(args_t));
 
-        data->array = array;
-        data->start = i;
-        data->end = std::min(i + run, size);
+            data->array = array;
+            data->start = i;
+            data->end = std::min(i + run, size);
 
-        pthread_create(&tid[i], NULL, insertion_sort, data);
-    }
+            pthread_create(&tid[created], NULL, insertion_sort, data);
+            ++created;
+            i += run;
+        }
+        i -= run;
 
-    for (size_t i = 0; i < size; i += run) {
-        pthread_join(tid[i], NULL);
+        for (size_t i = 0; i < threads; ++i) {
+            pthread_join(tid[i], NULL);
+        }
     }
 
     for (size_t mergeSize = run; mergeSize < size; mergeSize *= 2) {
@@ -103,7 +109,7 @@ int main(int argc, char* argv[]) {
 
     int threads = atoi(argv[1]);
 
-    int a[10] = {4, 3, 2, 1, 4, 3, 2, 1, 1, 1};
-    TimSort(a, 10);
+    int a[10] = {4, 3, 2, 1, 4, 3, 2, 1, 2, 1};
+    TimSort(a, 10, threads);
     printArr(a, 10);
 }
