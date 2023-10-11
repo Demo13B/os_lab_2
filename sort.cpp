@@ -95,7 +95,14 @@ void printArr(int* a, size_t size) {
     std::cout << a[size - 1] << " ]\n";
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        std::cerr << "Something is wrong with the arguments\n";
+        return 1;
+    }
+
+    int threads = atoi(argv[1]);
+
     int a[10] = {4, 3, 2, 1, 4, 3, 2, 1, 1, 1};
     TimSort(a, 10);
     printArr(a, 10);
