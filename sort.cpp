@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <iostream>
 
 struct args {
@@ -23,6 +24,7 @@ void* insertion_sort(void* input) {
             --pos;
         }
     }
+    pthread_exit(0);
 }
 
 void merge(int* array, int start_l, int start_r, int end) {
@@ -57,14 +59,18 @@ void merge(int* array, int start_l, int start_r, int end) {
 
 void TimSort(int* array, size_t size) {
     size_t run = 4;
+    pthread_t tid[4];
 
     for (size_t i = 0; i < size; i += run) {
         struct args* data = (struct args*)malloc(sizeof(struct args));
         data->array = array;
         data->start = i;
         data->end = std::min(i + run, size);
-        insertion_sort(data);
-        free(data);
+        pthread_create(&tid[i], NULL, insertion_sort, data);
+    }
+
+    for (size_t i = 0; i < size; i += run) {
+        pthread_join(tid[i], NULL);
     }
 
     for (size_t mergeSize = run; mergeSize < size; mergeSize *= 2) {
