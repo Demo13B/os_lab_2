@@ -67,6 +67,8 @@ void* merge(void* input) {
     for (size_t i = start_l; i < end; ++i) {
         array[i] = temp[i - start_l];
     }
+
+    pthread_exit(0);
 }
 
 void TimSort(int* array, size_t size, int threads) {
