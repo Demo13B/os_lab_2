@@ -1,16 +1,16 @@
 #include <pthread.h>
 #include <iostream>
 
-struct args {
+typedef struct args {
     int* array;
     int start;
     int end;
-};
+} args_t;
 
 void* insertion_sort(void* input) {
-    int* array = ((struct args*)input)->array;
-    int start = ((struct args*)input)->start;
-    int end = ((struct args*)input)->end;
+    int* array = ((args_t*)input)->array;
+    int start = ((args_t*)input)->start;
+    int end = ((args_t*)input)->end;
     int current, temp, pos;
 
     for (size_t i = start + 1; i < end; ++i) {
@@ -62,10 +62,12 @@ void TimSort(int* array, size_t size) {
     pthread_t tid[4];
 
     for (size_t i = 0; i < size; i += run) {
-        struct args* data = (struct args*)malloc(sizeof(struct args));
+        args_t* data = (args_t*)malloc(sizeof(args_t));
+
         data->array = array;
         data->start = i;
         data->end = std::min(i + run, size);
+
         pthread_create(&tid[i], NULL, insertion_sort, data);
     }
 
