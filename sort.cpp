@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <chrono>
 #include <iostream>
 
 typedef struct args_ins {
@@ -142,6 +143,10 @@ int main(int argc, char* argv[]) {
     int threads = atoi(argv[1]);
 
     int a[16] = {4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1};
+    auto start = std::chrono::high_resolution_clock::now();
     TimSort(a, 16, threads);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     printArr(a, 16);
+    std::cout << duration.count() << std::endl;
 }
