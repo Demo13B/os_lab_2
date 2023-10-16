@@ -142,11 +142,24 @@ int main(int argc, char* argv[]) {
 
     int threads = atoi(argv[1]);
 
-    int a[16] = {4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1};
+    int size;
+    std::cout << "What size array do you want to sort?: ";
+    std::cin >> size;
+
+    int arr[size];
+
+    for (size_t i = 0; i != size; ++i) {
+        arr[i] = rand() % 100;
+    }
+
+    printArr(arr, size);
+
     auto start = std::chrono::high_resolution_clock::now();
-    TimSort(a, 16, threads);
+    TimSort(arr, size, threads);
     auto end = std::chrono::high_resolution_clock::now();
+
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    printArr(a, 16);
-    std::cout << duration.count() << std::endl;
+
+    printArr(arr, size);
+    std::cout << "The sort was completed in " << duration.count() << " microseconds" << std::endl;
 }
