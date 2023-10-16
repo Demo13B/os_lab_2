@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     int threads = atoi(argv[1]);
 
     int size;
-    std::cout << "What size array do you what to sort?: ";
+    std::cout << "What size array do you want to sort?: ";
     std::cin >> size;
 
     int arr[size];
